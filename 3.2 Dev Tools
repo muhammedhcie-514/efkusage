@@ -1,0 +1,514 @@
+Step 1 Check the Elasticsearch cluster information.
+In Kibana, click Dev Tools in the left navigation bar to open Console.
+
+Enter the following command to view information about the nodes in the Elasticsearch
+cluster:
+GET /_cat/nodes?v
+
+Note: You will encounter a warning about the disabled security feature. You can ignore
+this message. For the purpose of this EFK setup, user authentication is not enabled on
+Elasticsearch, allowing password-free access to the Kibana page.
+Enter the following command to obtain an overview of the indexes in the Elasticsearch
+cluster:
+GET /_cat/indices?v
+
+
+Enter the following command to obtain detailed information about indexes in the
+Elasticsearch cluster:
+GET _all
+
+
+Enter the following command to check the Elasticsearch cluster health status:
+GET /_cat/health?v
+
+
+Step 2 Operate the data.
+Use the PUT method to create index data.
+PUT /ecommerce/product/1
+{
+ "name":"zhangsan",
+ "customer_full_name":{"firstname":"zhang","lastname":"san"},
+ "gender":"man"
+}
+PUT /ecommerce/product/2
+{
+ "name":"Old frined",
+ "customer_full_name":{"firstname":"wang","lastname":"wu"},
+ "gender":"man"
+}
+Note: To execute multiple Elasticsearch commands, select all commands and then click
+the run button.
+
+
+
+Use the GET method to view index data.
+GET /ecommerce/product/_search
+
+
+Use the POST method to update index data.
+POST /ecommerce/product/1
+{
+ "name":"Sam",
+ "gender":"male"
+}
+
+
+
+Use the GET method to view index data changes.
+GET /ecommerce/product/_search
+
+
+Note: Comparing the results with the previous data, you will notice that the Product1
+index data has been completely updated.
+Use POST and _update to update index data.
+
+POST /ecommerce/product/2/_update
+{
+ "doc":{
+ "name":"Tom"
+ }
+}
+
+Use the GET method to view index data changes.
+Note: Comparing the results with the previous data, you will notice that the Product2
+index data is partially updated.
+Use the DELETE method to delete index data.
+DELETE /ecommerce/product/1
+DELETE /ecommerce/product/2
+
+
+Use the GET method to view all index data.
+GET /ecommerce/product/_search
+
+
+Note: The hits command returns zero results, indicating the successful deletion of all
+index data.
+Before proceeding with complex queries, populate the index with more data.
+PUT /ecommerce/product/13
+{
+ "base_price" : 24.99,
+ "discount_percentage" : 0,
+ "quantity" : 1,
+ "manufacturer" : "Champion Arts",
+ "tax_amount" : 0,
+ "product_id" : 11238,
+ "category" : "Women's Clothing",
+ "sku" : "ZO0489604896",
+ "taxless_price" : 24.99,
+ "unit_discount_amount" : 0
+"min_price" : 11.75,
+ "discount_amount" : 0,
+ "created_on" : "20XX-12-12T12:00:00+08:00",
+ "product_name" : "Denim dress - black denim",
+ "price" : 24.99,
+ "taxful_price" : 24.99,
+ "base_unit_price" : 24.99
+}
+PUT /ecommerce/product/14
+{
+ "base_price" : 11.99,
+ "discount_percentage" : 0,
+ "quantity" : 1,
+ "manufacturer" : "Elitelligence",
+ "tax_amount" : 0,
+ "product_id" : 6283,
+ "category" : "Men's Clothing",
+ "sku" : "ZO0549605496",
+ "taxless_price" : 11.99,
+ "unit_discount_amount" : 0,
+ "min_price" : 6.35,
+ "discount_amount" : 0,
+ "created_on" : "20XX-12-13T13:00:00+08:00",
+ "product_name" : "Basic T-shirt - dark blue/white",
+ "price" : 11.99,
+ "taxful_price" : 11.99,
+ "base_unit_price" : 11.99
+}
+PUT /ecommerce/product/17
+{
+ "base_price" : 24.99,
+ "discount_percentage" : 0,
+ "quantity" : 1,
+ "manufacturer" : "Champion Arts",
+ "tax_amount" : 0,
+ "product_id" : 11238,
+ "category" : "Women's Clothing",
+ "sku" : "ZO0489604896",
+ "taxless_price" : 24.99,
+ "unit_discount_amount" : 0,
+ "min_price" : 11.75,
+ "discount_amount" : 0,
+ "created_on" : "20XX-12-14T14:00:00+08:00",
+ "product_name" : "Denim dress - black denim",
+ "price" : 24.99,
+ "taxful_price" : 24.99,
+"base_unit_price" : 24.99
+}
+PUT /ecommerce/product/15
+{
+ "base_price" : 99.99,
+ "discount_percentage" : 0,
+ "quantity" : 1,
+ "manufacturer" : "Low Tide Media",
+ "tax_amount" : 0,
+ "product_id" : 22794,
+ "category" : "Women's Shoes",
+ "sku" : "ZO0374603746",
+ "taxless_price" : 99.99,
+ "unit_discount_amount" : 0,
+ "min_price" : 46.01,
+ "discount_amount" : 0,
+ "created_on" : "20XX-12-15T15:00:00+08:00",
+ "product_name" : "Boots - Midnight Blue",
+ "price" : 99.99,
+ "taxful_price" : 99.99,
+ "base_unit_price" : 99.99
+}
+PUT /ecommerce/product/16
+{
+ "base_price" : 74.99,
+ "discount_percentage" : 0,
+ "quantity" : 1,
+ "manufacturer" : "Primemaster",
+ "tax_amount" : 0,
+ "product_id" : 12304,
+ "category" : "Women's Shoes",
+ "sku" : "ZO0360303603",
+ "taxless_price" : 74.99,
+ "unit_discount_amount" : 0,
+ "min_price" : 34.5,
+ "discount_amount" : 0,
+ "created_on" : "20XX-12-16T16:00:00+08:00",
+ "product_name" : "High heeled sandals - argento",
+ "price" : 74.99,
+ "taxful_price" : 74.99,
+ "base_unit_price" : 74.99
+}
+
+
+
+Note: Before using the preceding PUT method, replace 20XX with the current year.
+
+Step 3 Perform data match queries.
+Use match_all to perform a query that matches all documents.
+GET /ecommerce/product/_search
+{
+ "query":{
+ "match_all": {
+
+ }
+ }
+}
+
+Use match to perform a query that matches documents based on a specific condition.
+GET /ecommerce/product/_search
+{
+ "query":{
+ "match": {
+ "category" : "Clothing"
+ }
+ }
+}
+
+Use match_phrase to perform an exact match query.
+GET /ecommerce/product/_search
+{
+ "query":{
+ "match_phrase": {
+ "category":"Women's Clothing"
+ }
+ }
+}
+
+
+
+Note: You can also use match to search for Women's Clothing. However, match
+searches for Women's and Clothing separately and obtains the union set.
+GET /ecommerce/product/_search
+{
+ "query":{
+ "match": {
+ "category":"Women's Clothing"
+ }
+ }
+}
+Step 4 Process data.
+Sort results with sort.
+GET /ecommerce/product/_search
+{
+ "query":{
+ "match": {
+ "category" : "Clothing"
+ }
+ },
+ "sort":[
+ {
+ "price":{
+ "order":"desc"
+ }
+ }
+ ]
+}
+Note: "order":"desc" indicates sorting by price in descending order.
+
+
+Paginate the results with size.
+GET /ecommerce/product/_search
+{
+ "query":{
+ "match": {
+ "category" : "Clothing"
+ }
+ },
+ "sort":[
+ {
+ "price":{
+ "order":"desc"
+ }
+ }
+ ],
+ "from":0,
+ "size":2
+}
+Note: "from": 0 specifies the starting index. "size": 2 specifies the number of results per
+page.
+
+Return specific fields with _source:
+GET /ecommerce/product/_search
+{
+ "query":{
+ "match_all": {
+
+ }
+ },
+ "sort":[
+ {
+ "price":{
+ "order":"desc"
+}
+ }
+ ],
+ "_source":["price","min_price","base_price"]
+}
+
+
+Note: "_source":["price","min_price","base_price"] returns only price-related data.
+
+
+Step 5 Perform a data filtering query.
+Use filter for conditional query.
+GET /ecommerce/product/_search
+{
+ "query":{
+ "bool": {
+ "must": [
+ {
+ "match": {
+ "category": "Women's Clothing"
+ }
+ }
+ ],
+ "filter": [
+ {
+ "range": {
+ "price": {
+ "gte": 20,
+ "lte": 50
+ }
+ }
+}
+ ]
+ }
+ }
+}
+
+
+Note: The command searches for items whose name contains Women's Clothing and
+price is between 20 and 50.
+
+
+Use highlight to highlight the query results.
+GET /ecommerce/product/_search
+{
+ "query":{
+ "match_phrase": {
+ "category":"Women's Clothing"
+ }
+ },
+ "highlight":{
+ "fields": {
+ "category": {}
+ }
+ }
+}
+
+
+
+Note:
+1. By default, Elasticsearch uses <em> tags for highlighting. This can be customized, for
+example, using <span style="color:red"> for red highlights on the web page.
+2. Highlighting only applies to the keywords used in the match query.
+Query the number of items in each clothes category.
+GET /ecommerce/_search
+{
+ "aggs":{
+ "group_by_category":{
+ "terms": {
+ "field": "category.keyword"
+ }
+ }
+ }
+}
+
+
+
+Note:
+1. Aggregation results are displayed in the aggregations section at the bottom of the
+query results.
+2. To group and count by category (counting the number of products in each category):
+
+
+⚫ group_by_category: This is a custom name for the aggregation.
+⚫ field: This field requires the .keyword suffix. The category field is of the text type,
+which is not indexed by default. However, after text analysis, the extracted keywords
+are indexed. Therefore, you need to use category.keyword for accurate aggregation.
+Query the average price and item count for each clothes category.
+GET /ecommerce/_search
+{
+ "aggs":{
+ "group_by_category":{
+ "terms": {
+ "field": "category.keyword"
+ },
+ "aggs": {
+ "avg_price": {
+ "avg": {
+ "field": "price"
+ }
+ }
+ }
+ }
+ }
+}
+
+
+
+Step 6 Perform a complex multi-conditional query.
+Retrieve data with Women's Clothing from ecommerce. Group this data by price, using
+the specified price ranges. Within each price group, further categorize the data by
+category. Finally, calculate the average price for each category within each price group
+and display the results in descending order of average price.
+GET /ecommerce/product/_search
+{
+ "query":{
+ "match": {
+ "category": "Women's Clothing"
+ }
+ },
+ "aggs":{
+ "range_in_price":{
+ "range": {
+ "field": "price",
+ "ranges": [
+ {
+ "from": 0,
+ "to": 30
+ },
+ {
+ "from": 30,
+ "to": 50
+ },
+ {
+ "from": 50,
+ "to": 100
+ }
+ ]
+ },
+ "aggs": {
+ "group_in_category": {
+ "terms": {
+ "field": "category.keyword",
+ "order": {
+ "avg_price":"desc"
+ }
+ },
+ "aggs": {
+ "avg_price": {
+ "avg": {
+ "field": "price"
+ }
+ }
+ }
+ }
+ }
+ }
+ }
+}
+
+Question: Why does Kibana installed in this lab allow password-free login?
+Answer: The StatefulSet YAML file for Elasticsearch does not include any security
+configurations. In the Dev Tools section, this lack of configuration triggers warning
+messages each time you run an Elasticsearch command, indicating that the security
+features of Elasticsearch are disabled
+
+In a production environment, you need to configure the security feature for Elasticsearch.
+The procedure is as follows:
+Step 1: Configure TLS on the Elasticsearch master node.
+Go to the master directory and run the following command:
+bin/elasticsearch-certutil cert -out config/elastic-certificates.p12 -pass ""
+Open the config/elasticsearch.yaml file in a text editor. Add the following lines at the
+end of the file:
+
+
+xpack.security.enabled: true
+xpack.security.transport.ssl.enabled: true
+xpack.security.transport.ssl.verification_mode: certificate
+xpack.security.transport.ssl.keystore.path: elastic-certificates.p12
+xpack.security.transport.ssl.truststore.path: elastic-certificates.p12
+Save the file and start the master node by running the following command:
+bin/elasticsearch
+Leave this terminal running as it runs the executable file.
+Step 2: Set Elasticsearch cluster passwords.
+Open a new terminal and go to the master node directory. Generate random passwords
+for different internal stack users by running the following command:
+bin/elasticsearch-setup-passwords auto
+Step 3: Configure TLS on other Elasticsearch nodes.
+Open a new terminal and go to the directory of another Elasticsearch node. Copy the
+entire configuration directory from the master node to the current node:
+cp ../elasticsearch-7.1.0-master/config/* config/
+Add the node.master:false configuration option to the config/elasticsearch.yml file. For
+details, see the Elasticsearch documentation:
+https://www.elastic.co/guide/en/elasticsearch/reference/7.1/modules-discovery-bootstrapcluster.html. Alternatively, copy only the certificate file from the master node to the
+corresponding location on the current node. Ensure that all xpack.security.* keys have
+the same values as those on the master node.
+Run bin/elasticsearch to start the node. You can see that the node is added to the
+cluster. In the master node terminal, you should see a message indicating that the node
+has joined the cluster.
+Step 4: Configure Kibana security.
+You need to set a password for the Kibana user. Retrieve the generated password from
+the output of the elasticsearch-setup-passwords command. Go to the Kibana directory
+and open the config/kibana.yml file in a text editor. Locate the following lines:
+#elasticsearch.username: "user"
+#elasticsearch.password: "pass"
+Uncomment the username and password fields by removing the # symbol at the
+beginning of each line. Change user to kibana and replace pass with the password
+generated for kibana. Save the file. Now you can start Kibana securely by running
+bin/kibana.
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
