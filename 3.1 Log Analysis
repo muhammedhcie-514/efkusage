@@ -1,0 +1,160 @@
+Step 1 Create a directory for storing YAML files of the test application.
+
+mkdir app
+cd app
+pwd
+
+
+Step 2 Create resource objects.
+Create a dummylogs.yaml file with the following content:
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+ name: dummylogs
+spec:
+ replicas: 3
+ selector:
+ matchLabels:
+ app: dummylogs
+ template:
+ metadata:
+ labels:
+ app: dummylogs
+ logging: "true" # This label needs to added to pods for log collection.
+ spec:
+ containers:
+ - name: dummy
+ image: swr.cn-east-3.myhuaweicloud.com/hcie_openeuler/dummylogs:latest
+ args:
+ - msg-processor
+---
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+ name: dummylogs2
+spec:
+ replicas: 3
+selector:
+ matchLabels:
+ app: dummylogs2
+ template:
+ metadata:
+ labels:
+ app: dummylogs2
+ logging: "true" # This label needs to added to pods for log collection.
+ spec:
+ containers:
+ - name: dummy
+ image: cnych/dummylogs:latest
+ args:
+ - msg-receiver-api
+
+
+Use kubectl to create the two applications and verify their status.
+kubectl apply -f dummylogs.yaml
+kubectl get pods -l logging=true
+
+
+Note: After the deployment is complete, the dummylogs and dummylogs2 applications
+start to generate logs of different levels.
+Wait for several seconds and view the log information on the Kibana Discover page.
+
+
+Step 3 View the logs.
+The Available fields section on the left displays fields defined within the applications.
+
+
+Click the serviceName field to see which services have been logged.
+
+By default, the log data display includes numerous attributes, making it hard to read. You
+can customize this by selecting specific fields to display
+
+For clearer visualization, select and add the eventsNumber and serviceName fields to
+the display.
+
+Step 4 Perform basic log operations.
+Use the Add filter option to view specific log data.
+
+Note: In the filter, replace dummylogs-98f76788-cjlj4 with the actual log source name,
+as identified through kubectl.
+Click Save. The system filters the logs based on your criteria and highlights keywords in
+yellow
+
+You can also utilize KQL statements for more complex filtering. For example, to view logs
+from the msg-processor or msg-receiver-api services, enter the following query:
+
+serviceName:msg-processor OR serviceName:msg-receiver-api
+
+
+Step 5 Create a dashboard.
+Click Dashboard in the left navigation bar, and choose Create new dashboard > Create
+visualization.
+
+Select the k8s-* index and choose Bar vertical stacked as the visualization type. Add
+eventsNumber to the vertical axis and apply the Sum function for aggregation.
+
+
+Add @timestamp to horizontal axis apply the Date histogram function.
+
+
+This creates a chart showing the sum of eventsNumber over time.
+
+
+Drag serviceName.keyword from Available fields to Break down by on the right.
+
+
+Clicking a service name within the chart will toggle its visibility.
+
+
+Click Save and return in the upper right corner. A visualized chart is displayed in the
+dashboard.
+
+
+Click Save and return in the upper right corner, name the dashboard appeventNumber, and click Save. This creates a dashboard with one chart.
+
+
+Return to the Discover page.
+
+Select LOGLEVEL, message, and serviceName from Available fields.
+
+
+Enter the following query to filter for error and warning logs:
+LOGLEVEL:ERROR OR LOGLEVEL:WARNING
+
+Note: Since errors are less frequent, this example application will generate approximately
+four error messages every 15 to 20 minutes, with the rest being warnings.
+Return to the Dashboard page and create another visualization for error logs.
+
+
+Select the k8s-* index and choose Bar vertical stacked as the visualization type. Add
+@timestamp to the horizontal axis and apply the Date histogram function for
+aggregation.
+
+
+Drag LOGLEVEL.keyword from Available fields to Vertical axis on the right.
+
+Drag serviceName.keyword from Available fields to Break down by on the right.
+
+
+
+Enter the following query to filter for error and warning logs:
+LOGLEVEL:ERROR OR LOGLEVEL:WARNING
+
+
+Note: The chart reveals that msg-processor has more errors or warnings than msgreceiver-api.
+Enter the following query to filter for error logs:
+LOGLEVEL:ERROR
+
+Note: The chart reveals a strong correlation between errors in both services, with similar
+numbers of error logs generated at approximately the same time. This connection can be
+used to streamline troubleshooting.
+Click Save and return in the upper right corner. Another visualized chart is displayed in
+the dashboard.
+
+
+
+Click Save in the upper right corner to save the dashboard with two charts.
+
+
+
+
